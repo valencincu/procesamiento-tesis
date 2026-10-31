@@ -42,7 +42,7 @@ data_directory = video.directory_path
 
 script_path  = Path(__file__).resolve()
 date_tag = datetime.now().strftime("%Y_%m_%d")
-output_root = script_path.parent / "processed" / "stacking" / date_tag
+output_root = script_path.parent / "postprocessing" / "data" / "stacking" / date_tag
 export_dir,_ = create_output_directory(video, video.directory_path, output_root)
 
 # --------------------------------------------------------------------------

@@ -75,7 +75,7 @@ fcd = FCD(reference, square_size=effective_square_size, effective_height=effecti
 
 script_path = Path(__file__).resolve()
 date_tag = datetime.now().strftime("%Y_%m_%d")
-output_root = script_path.parent / "processed" / "fcd" / date_tag
+output_root = script_path.parent / "postprocessing" / "data" / "fcd" / date_tag
 
 path_dictionary = {
     "displaced_images_path": video.directory_path.resolve(),

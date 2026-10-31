@@ -104,7 +104,7 @@ piv = PIVRunner(
 
 script_path  = Path(__file__).resolve()
 date_tag = datetime.now().strftime("%Y_%m_%d")
-output_root = script_path.parent / "processed" / "piv" / date_tag
+output_root = script_path.parent / "postprocessing" / "data" / "piv" / date_tag
 save_dir, notes_path = create_output_directory(video, video.directory_path, output_root)
 
 path_dictionary = {

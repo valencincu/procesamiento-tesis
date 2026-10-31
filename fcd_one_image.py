@@ -97,7 +97,7 @@ im = axs[1].pcolormesh(X, Y, height_field*1e3, cmap="RdBu", rasterized=True)
 axs[1].set_aspect("equal")
 plt.colorbar(im, label="Altura [mm]", ax=axs[1], orientation="horizontal")
 
-plt.savefig("analyzed" + os.sep + "fcd.pdf", dpi=200)
+plt.savefig("postprocessing/data/" + "fcd.pdf", dpi=200)
 plt.show()
 
 
