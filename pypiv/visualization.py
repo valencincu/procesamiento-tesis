@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+import scienceplots
+plt.style.use("science")
 
 def velocity_histogram(u: np.ndarray, v: np.ndarray, ax=None, show=False, **histogram2d_kwargs):
     hist, x_edges, y_edges = np.histogram2d(u.ravel(), v.ravel(), **histogram2d_kwargs)

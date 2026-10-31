@@ -15,7 +15,7 @@ from pydata.video import Video
 
 from pypiv.algorithms import generate_background
 from pypiv.runner import PIVRunner
-from pypiv.settings import SimplePIVSettings, WindefPIVSettings
+from pypiv.settings import WindefPIVSettings
 
 matplotlib_backend("TkAgg")
 plt.style.use('science')
@@ -30,7 +30,7 @@ BACKGROUND_AVERAGE_STEP = 10
 CONTRAST_STRETCH_LOWER = 50
 CONTRAST_STRETCH_UPPER = 100
 
-PIV_INTERVAL = 12
+PIV_INTERVAL = 6
 PIV_WINDOW_SIZES = (64, 32, 16)
 PIV_OVERLAPS = (32, 16, 8)
 PIV_SIG2NOISE_THRESHOLD = 2.0
@@ -38,7 +38,7 @@ PIV_SIG2NOISE_THRESHOLD = 2.0
 FILTER_SCALE = 0.1
 FILTER_NEIGHBORHOOD = 2
 
-CALIBRATION_FACTOR = 1/3400
+CALIBRATION_FACTOR = 1/3927.3
 
 # --------------------------------------------------------------------------
 # SELECT VIDEO
@@ -65,6 +65,7 @@ def preprocess_func(image):
     return processed_image
 
 video.preprocess = preprocess_func
+video[0].show()
 
 # --------------------------------------------------------------------------
 # VELOCITY FIELD FILTER FUNCTION

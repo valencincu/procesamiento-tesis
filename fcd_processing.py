@@ -25,7 +25,7 @@ SQUARE_SIZE = 2e-3
 PATTERN_CAMERA_DISTANCE = 80e-2
 AIR_LAYER_THICKNESS = 2.2e-2
 GLASS_LAYER_THICKNESS = 0.5e-2
-WATER_LAYER_THICKNESS = 8.1e-2
+WATER_LAYER_THICKNESS = 7.9e-2
 ANALYSIS_STEP = 4
 
 # --------------------------------------------------------------------------
@@ -93,7 +93,7 @@ parameter_dictionary = {
 }
 
 save_dir, notes_path = create_output_directory(video, video.directory_path.parent, output_root)
-write_analysis_notes(path_dictionary, parameter_dictionary, notes_path)
+write_analysis_notes(notes_path, path_dictionary, parameter_dictionary)
 
 # --------------------------------------------------------------------------
 # CHECK: Plot FFT with carriers

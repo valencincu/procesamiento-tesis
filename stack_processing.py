@@ -1,5 +1,7 @@
+from debugpy.launcher.debuggee import process
 from pathlib import Path
 from datetime import datetime
+from matplotlib import use as matplotlib_backend
 
 import cv2
 import matplotlib.pyplot as plt
@@ -11,7 +13,9 @@ from pydata.roi import ROI
 from pydata.image import Image
 from pydata.video import Video
 
-from pypiv.runner import generate_background, preprocess
+from pypiv.algorithms import generate_background
+
+matplotlib_backend("TkAgg")
 
 # --------------------------------------------------------------------------
 # CONSTANTS
@@ -19,11 +23,11 @@ from pypiv.runner import generate_background, preprocess
 
 BACKGROUND_AVERAGE_STEP = 10
 
-CONTRAST_STRETCH_LOWER = 50
+CONTRAST_STRETCH_LOWER = 90
 CONTRAST_STRETCH_UPPER = 100
 
-START_FRAME = 0
-END_FRAME = 2000
+START_FRAME = 2500
+END_FRAME = 3000
 
 # --------------------------------------------------------------------------
 # SELECT VIDEO
@@ -53,8 +57,7 @@ def preprocess_func(image):
     processed_image = image.astype(np.float32) - background
     processed_image = processed_image.cropped(roi=roi)
     processed_image = processed_image.inverted().normalized()
-    processed_image = preprocess.contrast_stretch(
-        processed_image, 
+    processed_image = processed_image.contrast_stretch(
         lower_limit=CONTRAST_STRETCH_LOWER, 
         upper_limit=CONTRAST_STRETCH_UPPER
     )
@@ -68,6 +71,8 @@ video.preprocess = preprocess_func
 
 noise_image = video[0].copy()
 stacked_image = video[0].copy()
+
+noise_image.show()
 
 # Get noise by selecting least bright pixel in time series.
 # Get trajectories by selecting brightest pixel in time series. 
