@@ -1,16 +1,16 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
+from itertools import chain
 
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.colors import LogNorm
 from scipy.fft import fft2, fftshift, ifft2, ifftshift
 from skimage.restoration import unwrap_phase
-from itertools import chain
 
-import pyfcd.fourier_space as fourier_space
-from pyfcd.height_map import HeightMap
+from pyfcd import fourier_space
 from pyfcd.carriers import Carrier
 from pyfcd.decorators import animatable, saveable
+from pyfcd.height_map import HeightMap
 
 # --------------------------------------------------------------------------
 # CONSTANTS
@@ -37,13 +37,13 @@ def find_reference_image(import_dir):
 # --------------------------------------------------------------------------
 
 class FCD:
-    def __init__(self, 
-                 reference_image, 
-                 *, 
-                 effective_height=1, 
-                 calibration_factor=None, 
+    def __init__(self,
+                 reference_image,
+                 *,
+                 effective_height=1,
+                 calibration_factor=None,
                  square_size=None):
-        
+
         self._reference_image = reference_image.astype(np.float32)
 
         self._square_size = square_size
@@ -57,7 +57,7 @@ class FCD:
             if self.calibration_factor is None
             else self.calibration_factor
         )
-        
+
         self._carriers = self._build_carriers()
         self.x, self.y = self._generate_coordinates(self.calibration_factor)
 
@@ -138,7 +138,7 @@ class FCD:
         ky = fourier_space.wavenumber_axis(self.reference_image.shape[0], self.calibration_factor)
 
         ffts = {
-            'Reference image': np.abs(self._fft_image(self._reference_image)), 
+            'Reference image': np.abs(self._fft_image(self._reference_image)),
             'Deformed image' : np.abs(self._fft_image(displaced_image))
         }
 
@@ -172,7 +172,7 @@ class FCD:
     def _determine_calibration_factor(self, peaks):
         if self._square_size is None:
             return DEFAULT_CALIBRATION_FACTOR
-        
+
         checkerboard_frequencies_px = fourier_space.pixels_to_wavenumbers(
             self._reference_image.shape,
             locations=peaks,
@@ -194,7 +194,7 @@ class FCD:
         ]
 
 
-    def _find_phases(self, displaced_image_fft, unwrap): 
+    def _find_phases(self, displaced_image_fft, unwrap):
         phases = np.zeros((2, *displaced_image_fft.shape))
         for i, carrier in enumerate(self._carriers):
             angles    = -np.angle(ifft2(ifftshift(displaced_image_fft * carrier.mask)) * carrier.ccsgn)
@@ -205,10 +205,10 @@ class FCD:
     def _find_displacement_field(self, phases):
         det_a = self._carriers[0].frequencies[1] * self._carriers[1].frequencies[0] - \
                 self._carriers[0].frequencies[0] * self._carriers[1].frequencies[1]
-        
+
         u = (self._carriers[1].frequencies[0] * phases[0] -
              self._carriers[0].frequencies[0] * phases[1]) / det_a
-        
+
         v = (self._carriers[0].frequencies[1] * phases[1] -
              self._carriers[1].frequencies[1] * phases[0]) / det_a
 
@@ -264,10 +264,3 @@ class FCD:
             yield t, i_def, height_map
 
         plt.ioff()
-
-    
-    
-
-
-
-

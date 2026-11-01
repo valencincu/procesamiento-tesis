@@ -4,15 +4,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import scienceplots
-
-from openpiv import validation
 from matplotlib import use as matplotlib_backend
+from openpiv import validation
 from tqdm import tqdm
 
 from pyaux.output_config import create_output_directory, write_analysis_notes
 from pydata.roi import ROI
 from pydata.video import Video
-
 from pypiv.algorithms import generate_background
 from pypiv.runner import PIVRunner
 from pypiv.settings import WindefPIVSettings
@@ -59,7 +57,7 @@ def preprocess_func(image):
     processed_image = processed_image.cropped(roi=roi)
     processed_image = processed_image.inverted().normalized()
     processed_image = processed_image.contrast_stretch(
-        lower_limit=CONTRAST_STRETCH_LOWER, 
+        lower_limit=CONTRAST_STRETCH_LOWER,
         upper_limit=CONTRAST_STRETCH_UPPER
     )
     return processed_image
@@ -132,7 +130,7 @@ plt.show()
 # --------------------------------------------------------------------------
 
 ax = piv.compare_frames(0, show=False)
-ax.figure.savefig(save_dir/"frame_comparison.pdf", dpi=200)
+plt.savefig(save_dir/"frame_comparison.pdf", dpi=200)
 plt.show()
 
 # --------------------------------------------------------------------------

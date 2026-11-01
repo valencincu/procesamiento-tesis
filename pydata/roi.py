@@ -1,7 +1,8 @@
-import numpy as np
-import cv2
-import matplotlib.patches as patches
 from warnings import warn
+
+import cv2
+import numpy as np
+from matplotlib import patches
 
 
 def _2dim_requirements(element):
@@ -54,11 +55,11 @@ class ROI:
         return ROI(region=self._region, rect=rect).recenter(self.center)
 
 
-    def __floordiv__(self, factor): 
+    def __floordiv__(self, factor):
         rect = (self[0], self[1], self[2] // factor, self[3] // factor)
         return ROI(region=self._region, rect=rect).recenter(self.center)
 
-    
+
     def __str__(self):
         return f'ROI: {self.rect}, center: {self.center}, shape: {self.shape}'
 
@@ -70,7 +71,7 @@ class ROI:
 
 
     @property
-    def shape(self): 
+    def shape(self):
         return (self[3], self[2])
 
 
@@ -79,7 +80,7 @@ class ROI:
         shape = self.shape
         return (self[0] + shape[1] // 2, self[1] + shape[0] // 2)
 
-    
+
     @property
     def corner(self):
         return (self[0], self[1])
@@ -131,21 +132,21 @@ class ROI:
         return self - self.center + new_center
 
 
-    def reshape(self, new_shape): 
+    def reshape(self, new_shape):
         _2dim_requirements(new_shape)
         return ROI(region=self._region, rect=(self[0], self[1], new_shape[1], new_shape[0])).recenter(self.center)
 
 
-    def recorner(self, new_corner): 
+    def recorner(self, new_corner):
         _2dim_requirements(new_corner)
         return self - self.corner + new_corner
 
 
-    def scale(self, factor): 
+    def scale(self, factor):
         return self * factor
 
 
-    def rotate(self, center, angle): 
+    def rotate(self, center, angle):
         rot_mat = cv2.getRotationMatrix2D(center, angle, 1.0)
         M = rot_mat[:,:2]
         v = rot_mat[:,2]
@@ -163,7 +164,7 @@ class ROI:
         image = np.zeros(self._region)
         x, y, w, h = self._rect
         new_h, new_w = image[max(0, y):y+h, max(0, x):x+w].shape
-        if new_h == 0 or new_w == 0: 
+        if new_h == 0 or new_w == 0:
             warn('ROI: roi is out of image bounds and has been reset')
             return self.reset()
         new_x, new_y = max(0, self[0]), max(0, self[1])
@@ -175,8 +176,8 @@ class ROI:
         rect = patches.Rectangle(self.corner, self[2], self[3], linewidth=1, edgecolor='r', facecolor='none')
         return rect
 
-    
-if __name__ == '__main__' : 
+
+if __name__ == '__main__' :
     image = np.zeros((100, 150))
     roi1 = ROI(image)
     roi2 = ( roi1 + (3, 4) )*2

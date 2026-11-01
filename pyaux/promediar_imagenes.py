@@ -6,6 +6,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 # AUXILIARY FUNCTION
 def normalize_image(img, scale=1, offset=0):
     img = img.astype(np.float32)
@@ -13,14 +14,14 @@ def normalize_image(img, scale=1, offset=0):
     return offset*np.ones_like(img) if range==0 else scale * (img - img.min()) / range + offset
 
 roi = None
-allowed_formats = "tiff, tif, bmp, png"  
+allowed_formats = "tiff, tif, bmp, png"
 
 
 Tk().withdraw()
-data_dir_name   = askdirectory(title="Select data directory") 
+data_dir_name   = askdirectory(title="Select data directory")
 print(f"Averaging: {data_dir_name}")
 
-save_dir_name   = askdirectory(title="Select save directory") 
+save_dir_name   = askdirectory(title="Select save directory")
 print(f"Save dir: {save_dir_name}")
 
 data_dir = os.path.abspath(data_dir_name)

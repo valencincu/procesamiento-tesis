@@ -2,13 +2,12 @@ import glob
 import os
 from pathlib import Path
 from tkinter import filedialog
+
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.fft as fft
+from scipy import fft
 
 from pydata.image import Image
-from pydata.roi import ROI
-
 
 allowed_formats = (".jpg", ".png", ".tiff", ".bmp", ".npy", ".tif")
 
@@ -135,7 +134,7 @@ class Video:
 
 
     def __get_frames(self):
-        return [file for file in os.listdir(self.directory_path) 
+        return [file for file in os.listdir(self.directory_path)
                 if file.endswith(allowed_formats)]
 
 

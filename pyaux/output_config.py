@@ -1,6 +1,6 @@
-import functools
 from pathlib import Path
 from shutil import copyfile
+
 
 def create_output_directory(video, import_dir, export_dir):
     job_id = input("Enter job identifier: ", )
@@ -10,7 +10,7 @@ def create_output_directory(video, import_dir, export_dir):
 
     metadata_path = next(video.directory_path.glob("*.cih"))
     copyfile(metadata_path, save_dir / "metadata.cih")
-    
+
     return save_dir, save_dir / "notes.txt"
 
 def write_analysis_notes(notes_path, path_dictionary, parameter_dictionary, extra=""):
@@ -24,6 +24,6 @@ def write_analysis_notes(notes_path, path_dictionary, parameter_dictionary, extr
     parameters = "PARAMETERS\n" + "\n".join(
         f"{name} : {parameter}" for name, parameter in parameter_dictionary.items()
     )
-    
+
     script = Path(path_dictionary["script_path"]).resolve().read_text()
     notes_path.write_text("\n---\n".join((notes, paths, parameters, extra, script)))

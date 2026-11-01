@@ -1,12 +1,11 @@
 import numpy as np
-from scipy.interpolate import RectBivariateSpline
-from scipy.ndimage import map_coordinates
-
 from openpiv import filters, smoothn
 from openpiv.pyprocess import (
     extended_search_area_piv,
     get_rect_coordinates,
 )
+from scipy.interpolate import RectBivariateSpline
+from scipy.ndimage import map_coordinates
 
 from pypiv.settings import CommonPIVSettings, SimplePIVSettings, WindefPIVSettings
 
@@ -20,7 +19,7 @@ DEFAULT_FIELD_INTERPOLATION_ORDER = 3
 # AUXILIARY FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def generate_coordinates(shape, search_area_size, overlap, calibration_factor=1):
+def generate_coordinates(shape, search_area_size, overlap, calibration_factor=1.0):
     x, y = get_rect_coordinates(shape, search_area_size, overlap)
     return x * calibration_factor, y * calibration_factor
 
@@ -65,9 +64,9 @@ def _validate(u, v, s2n, settings: CommonPIVSettings, replace_flagged=False):
 
         if replace_flagged:
             u, v = filters.replace_outliers(
-                u, v, flags, 
-                method=settings.filter_method, 
-                max_iter=settings.max_filter_iteration, 
+                u, v, flags,
+                method=settings.filter_method,
+                max_iter=settings.max_filter_iteration,
                 kernel_size=settings.filter_kernel_size
             )
 
@@ -84,8 +83,8 @@ def _reshape(shape, *args):
 
 def _interpolate_field(field, x_old, y_old, x_new, y_new,
                        interpolation_order=DEFAULT_FIELD_INTERPOLATION_ORDER):
-    
-    spline = RectBivariateSpline(y_old, x_old, field, 
+
+    spline = RectBivariateSpline(y_old, x_old, field,
                                  kx=interpolation_order, ky=interpolation_order)
 
     return spline(y_new, x_new)
@@ -94,17 +93,17 @@ def _interpolate_field(field, x_old, y_old, x_new, y_new,
 def _create_deformation_field(frame, x, y, u, v, interpolation_order=DEFAULT_FIELD_INTERPOLATION_ORDER):
     y_axis = y[:, 0]  # extract first coloumn from meshgrid
     x_axis = x[0, :]  # extract first row from meshgrid
-    
+
     new_x_axis = np.arange(frame.shape[1])  # extract the image grid
     new_y_axis = np.arange(frame.shape[0])
 
     u_dense = _interpolate_field(
-        u, x_axis, y_axis, new_x_axis, new_y_axis, 
+        u, x_axis, y_axis, new_x_axis, new_y_axis,
         interpolation_order=interpolation_order
     )
 
     v_dense = _interpolate_field(
-        v, x_axis, y_axis, new_x_axis, new_y_axis, 
+        v, x_axis, y_axis, new_x_axis, new_y_axis,
         interpolation_order=interpolation_order
     )
 
@@ -125,7 +124,7 @@ def _windef_iteration(
     settings: WindefPIVSettings,
     replace_flagged: bool = True
 ):
-    
+
     # ------------------------------------------------------------------------------
     # GET PREVIOUS FIELD IN NEW COORDINATES
     # ------------------------------------------------------------------------------
@@ -147,7 +146,7 @@ def _windef_iteration(
 
     frame_a_def = map_coordinates(frame_a, ((y_dense - v_dense / 2, x_dense - u_dense / 2)),
                               order=settings.interpolation_order, mode='nearest')
-    
+
     frame_b_def = map_coordinates(frame_b, ((y_dense + v_dense / 2, x_dense + u_dense / 2)),
                               order=settings.interpolation_order, mode='nearest')
 
@@ -175,7 +174,7 @@ def _windef_iteration(
 # PIV ALGORITHMS
 # ------------------------------------------------------------------------------
 
-def simple_piv(frame_a: np.ndarray, frame_b: np.ndarray, settings: SimplePIVSettings, replace_flagged: bool = True, calibration_factor=1, dt=1):
+def simple_piv(frame_a: np.ndarray, frame_b: np.ndarray, settings: SimplePIVSettings, replace_flagged: bool = True, calibration_factor=1.0, dt=1.0):
 
     x, y = generate_coordinates(frame_a.shape, settings.search_area_size, settings.overlap)
 
@@ -187,7 +186,7 @@ def simple_piv(frame_a: np.ndarray, frame_b: np.ndarray, settings: SimplePIVSett
     return x * calibration_factor, y * calibration_factor, u * calibration_factor / dt, v * calibration_factor / dt, flags
 
 
-def windef_piv(frame_a: np.ndarray, frame_b: np.ndarray, settings: WindefPIVSettings, replace_flagged: bool = True, calibration_factor=1, dt=1):
+def windef_piv(frame_a: np.ndarray, frame_b: np.ndarray, settings: WindefPIVSettings, replace_flagged: bool = True, calibration_factor=1.0, dt=1.0):
 
     x, y = generate_coordinates(frame_a.shape, settings.window_sizes[0], settings.overlaps[0])
     u, v, s2n = _correlate(frame_a, frame_b, settings, settings.window_sizes[0], settings.overlaps[0])
@@ -197,7 +196,7 @@ def windef_piv(frame_a: np.ndarray, frame_b: np.ndarray, settings: WindefPIVSett
         if settings.use_smoothn:
             u, *_ = smoothn.smoothn(u, s=settings.smoothn_s)
             v, *_ = smoothn.smoothn(v, s=settings.smoothn_s)
-        
+
         x, y, u, v, flags = _windef_iteration(frame_a, frame_b, x, y, u, v, settings.window_sizes[i], settings.overlaps[i], settings, replace_flagged=replace_flagged)
 
     return x * calibration_factor, y * calibration_factor, u * calibration_factor / dt, v * calibration_factor / dt, flags

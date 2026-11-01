@@ -1,18 +1,18 @@
-from tkinter import filedialog
 from pathlib import Path
+from tkinter import filedialog
 
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal.windows import tukey
+from skimage.exposure import rescale_intensity
 from skimage.feature import canny
 from skimage.filters import butterworth, gaussian
 from skimage.transform import rotate, warp_polar
-from skimage.exposure import rescale_intensity
 
 from pydata.roi import ROI
 
-    
+
 class Image(np.ndarray):
     def __new__(cls, image=None, image_path=None):
         if image is None:
@@ -65,21 +65,21 @@ class Image(np.ndarray):
         return Image(warp_polar(self, center=center, radius=radius), image_path=self.path)
 
 
-    def low_pass(self, cutoff_ratio=0.005, order=2): 
+    def low_pass(self, cutoff_ratio=0.005, order=2):
         low_pass = butterworth(self, cutoff_frequency_ratio=cutoff_ratio, order=order, high_pass=False, squared_butterworth=False)
         return Image(low_pass, image_path=self.path)
 
 
-    def high_pass(self, cutoff_ratio=0.005, order=2): 
+    def high_pass(self, cutoff_ratio=0.005, order=2):
         high_pass = butterworth(self, cutoff_frequency_ratio=cutoff_ratio, order=order, high_pass=True, squared_butterworth=False)
         return Image(high_pass, image_path=self.path)
 
 
-    def blurred(self, sigma=5): 
+    def blurred(self, sigma=5):
         blur = gaussian(self, sigma=sigma).astype(np.float32)
         return Image(blur, image_path=self.path)
 
-    
+
     def edges(self, low=0.7, high=0.98, sigma=5, mask=None):
         edges = canny(self, sigma=sigma, low_threshold=low, high_threshold=high, use_quantiles=True, mask=mask)
         return Image(edges, image_path=self.path)
@@ -124,11 +124,11 @@ class Image(np.ndarray):
             ax.set_xlabel("Value")
             ax.set_ylabel("Frequency density")
             plt.show()
-        
+
         else:
             return ax
 
-    
+
     def masked(self, mask=None, background=None, invert=False, sigma=None, return_mask=False):
         background = background if background is not None else np.zeros_like(self)
 
@@ -148,7 +148,7 @@ class Image(np.ndarray):
         if show_plot: plt.show()
 
 
-    def save(self, filename="image.png", **kwargs): 
+    def save(self, filename="image.png", **kwargs):
         plt.imshow(self)
         plt.savefig(filename, **kwargs)
 
@@ -161,16 +161,16 @@ def circle_mask(shape, center=None, radius=None):
     return dist_from_center < radius
 
 
-def ring_mask(self, radii, center=None, background=None, invert=False, sigma=None, return_mask=False): 
+def ring_mask(self, radii, center=None, background=None, invert=False, sigma=None, return_mask=False):
         mask = np.logical_or(circle_mask(self, center, radii[0]), circle_mask(self, center, radii[1]))
         return self.masked(mask, background, invert, sigma, return_mask)
 
 
-def _read_image(path):                
+def _read_image(path):
     if path is not None:
-        if path.suffix == ".npy": 
+        if path.suffix == ".npy":
             image = np.load(path)
-        else: 
+        else:
             flag = cv2.IMREAD_UNCHANGED
             image = cv2.imread(path, flag)
     else:
@@ -178,7 +178,7 @@ def _read_image(path):
     return image
 
 
-def _tukey_window(x_factor=0.2, y_factor=False): 
+def _tukey_window(x_factor=0.2, y_factor=False):
     y_factor = y_factor if y_factor else x_factor
     def window_func(image):
         window_1d_x = np.abs(tukey(image.shape[1], x_factor))
@@ -188,7 +188,7 @@ def _tukey_window(x_factor=0.2, y_factor=False):
     return window_func
 
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     image = Image()
     image.show()
     image.histogram(density=True, bins=255)

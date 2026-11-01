@@ -1,12 +1,13 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import scienceplots
+
 plt.style.use("science")
 
 def velocity_histogram(u: np.ndarray, v: np.ndarray, ax=None, show=False, **histogram2d_kwargs):
     hist, x_edges, y_edges = np.histogram2d(u.ravel(), v.ravel(), **histogram2d_kwargs)
 
-    if ax is None: 
+    if ax is None:
         _, ax = plt.subplots()
 
     im = ax.pcolormesh(x_edges, y_edges, hist.T)
@@ -16,21 +17,21 @@ def velocity_histogram(u: np.ndarray, v: np.ndarray, ax=None, show=False, **hist
     if show:
         plt.show()
         return (hist, x_edges, y_edges)
-    
+
     else:
         return im, (hist, x_edges, y_edges)
 
-    
+
 def piv_plot(x, y, u, v, flags=None, background=None, ax=None, scale=None, show=False):
     mask = np.zeros_like(u) if flags is None else flags
     if ax is None:
         _, ax = plt.subplots(dpi=100)
     if background is not None:
         ax.pcolormesh(background, cmap="gray", rasterized=True)
-    
+
     ax.quiver(x, y, u * (1 - mask), v * (1 - mask), scale=scale)
     ax.set_aspect('equal')
-    
+
     if show: plt.show()
     return ax
 
@@ -51,7 +52,7 @@ def compare_frames(frame_a, frame_b, ax=None, show=False):
     else:
         return ax
 
-    
+
 def validation_check(u, v, u_filtered, v_filtered):
     _, axs = plt.subplots(1, 2)
 

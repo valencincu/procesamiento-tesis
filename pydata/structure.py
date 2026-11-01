@@ -1,21 +1,23 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, Slider
-from pydata.image import Image
-from pydata.roi import ROI
 from skimage.transform import hough_circle, hough_circle_peaks
 
-class Structure: 
+from pydata.image import Image
+from pydata.roi import ROI
+
+
+class Structure:
     def __init__(self, template_path=None, template=None, select_roi=False, find_structure=True, recenter=False):
         template = Image(template, image_path=template_path)
         roi = ROI(template, select=select_roi).square()
         temp_roi = roi
 
         center, in_radius, out_radius = roi.center, None, None
-        if find_structure: 
+        if find_structure:
             center, in_radius, out_radius = _find_circle_sliders(template, init_center=None, title='find_structure config')
             temp_roi = temp_roi.reshape((out_radius, out_radius)).recenter(center)
-            if recenter: 
+            if recenter:
                 roi = roi.recenter(center)
                 center = roi.center
 
@@ -37,27 +39,27 @@ class Structure:
         return self._template
 
     @property
-    def position(self): 
+    def position(self):
         return self._position
 
     @property
-    def center(self): 
+    def center(self):
         return self._center
 
     @property
     def inner_radius(self):
         return self._inner_radius
-    
+
     @inner_radius.setter
-    def inner_radius(self, new_radius): 
+    def inner_radius(self, new_radius):
         self._inner_radius = new_radius
 
     @property
     def outer_radius(self):
         return self._outer_radius
-    
+
     @outer_radius.setter
-    def outer_radius(self, new_radius): 
+    def outer_radius(self, new_radius):
         self._outer_radius = new_radius
 
     @property
@@ -115,7 +117,7 @@ def _find_circle_sliders(image, init_center=None, title='find_circle sliders'):
         outer_circle.radius = outer_slider.val
         fig.canvas.draw_idle()
         fig.canvas.flush_events()
-    
+
     edge_slider.on_changed(update)
     inner_slider.on_changed(update)
     outer_slider.on_changed(update)

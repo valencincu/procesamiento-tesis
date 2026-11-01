@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 class HeightMap:
@@ -9,8 +8,6 @@ class HeightMap:
         self.shape  = height_map.shape
         self.calibration_factor = calibration_factor
 
-        x_length = self.values.shape[1]
-        y_length = self.values.shape[0]
         self.x = x
         self.y = y
 
@@ -41,7 +38,7 @@ class HeightMap:
             fig, ax = plt.subplots()
         elif ax is None:
             ax = fig.add_subplot(111)
-        
+
         im = ax.pcolormesh(self.x*1e3, self.y*1e3, self.values*1e3)
         cbar = fig.colorbar(im, ax=ax)
         cbar.set_label("Height [mm]", rotation=270, labelpad=15)
@@ -80,8 +77,8 @@ class HeightMap:
             axs[0].axvline(0, linestyle="--", linewidth=2, color="white")
             axs[1].plot(axis * 1e3, sliced * 1e3)
 
-        axs[0].set_xlabel(f"$x$ [mm]")
-        axs[0].set_ylabel(f"$y$ [mm]")
+        axs[0].set_xlabel("$x$ [mm]")
+        axs[0].set_ylabel("$y$ [mm]")
         axs[0].set_aspect("equal")
 
         axs[1].set_ylabel("Height [mm]")

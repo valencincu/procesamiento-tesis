@@ -1,13 +1,13 @@
+import h5py
 import matplotlib.pyplot as plt
 import numpy as np
-import h5py
-
-from pypiv.algorithms import simple_piv, windef_piv, generate_coordinates
-from pypiv.execution import animatable, saveable
-from pypiv.settings import WindefPIVSettings, SimplePIVSettings
-from pypiv.visualization import piv_plot, compare_frames
-
 from matplotlib import use as matplotlib_backend
+
+from pypiv.algorithms import simple_piv, windef_piv
+from pypiv.execution import animatable, saveable
+from pypiv.settings import SimplePIVSettings, WindefPIVSettings
+from pypiv.visualization import compare_frames, piv_plot
+
 matplotlib_backend("TkAgg")
 
 # --------------------------------------------------------------------------
@@ -15,11 +15,11 @@ matplotlib_backend("TkAgg")
 # --------------------------------------------------------------------------
 
 class PIVRunner:
-    def __init__(self, video, settings, fps=1, interval=1, calibration_factor=1):
+    def __init__(self, video, settings, fps=None, interval=1, calibration_factor=1.0):
         self.video = video
         self.image_shape = self.video[0].shape
         self.settings = settings
-        self.fps = fps
+        self.fps = fps if fps is not None else 1.0
         self.interval = interval
         self.dt = self.interval / self.fps
         self.calibration_factor = calibration_factor
@@ -44,23 +44,23 @@ class PIVRunner:
             _, _, u, v, flags = self.velocity_field(frame_index)
             yield frame_index / self.fps, u, v, flags
 
-    
+
     def velocity_field(self, frame_index):
-        current_frame = self.video[frame_index] 
+        current_frame = self.video[frame_index]
         next_frame = self.video[frame_index + self.interval]
 
         x, y, u, v, flags = self.process(current_frame, next_frame, self.settings, calibration_factor=self.calibration_factor, dt=self.dt)
 
         return x, y, u, v, flags
-    
+
 
     def plot(self, u, v, **kwargs):
         return piv_plot(self.x, self.y, u, v, **kwargs)
 
 
     def compare_frames(self, frame_index, ax=None, show=True):
-        first_frame  = self.video[frame_index] 
-        second_frame = self.video[frame_index + self.interval] 
+        first_frame  = self.video[frame_index]
+        second_frame = self.video[frame_index + self.interval]
 
         ax = compare_frames(first_frame, second_frame, show=False)
         ax.set_title(f"Frame {frame_index} (red) and {frame_index + self.interval} (blue)")
@@ -69,7 +69,7 @@ class PIVRunner:
             plt.show()
         else:
             return ax
-        
+
 
     def _save(self, gen, save_at):
         length = len(self.video)
@@ -79,8 +79,8 @@ class PIVRunner:
             f.create_dataset("x [m]", data=self.x, dtype=np.float64)
             f.create_dataset("y [m]", data=self.y, dtype=np.float64)
             us = f.create_dataset("u [m per s]", shape=(0, *shape), maxshape=(length, *shape), chunks=(1, *shape), dtype=np.float64)
-            vs = f.create_dataset("v [m per s]", shape=(0, *shape), maxshape=(length, *shape), chunks=(1, *shape), dtype=np.float64)  
-            fs = f.create_dataset("flags", shape=(0, *shape), maxshape=(length, *shape), chunks=(1, *shape), dtype=bool)  
+            vs = f.create_dataset("v [m per s]", shape=(0, *shape), maxshape=(length, *shape), chunks=(1, *shape), dtype=np.float64)
+            fs = f.create_dataset("flags", shape=(0, *shape), maxshape=(length, *shape), chunks=(1, *shape), dtype=bool)
             ts = f.create_dataset("t [s]", shape=(0,), maxshape=(length,), dtype=np.float64)
 
             i = 0
@@ -141,6 +141,6 @@ if __name__ == "__main__":
 
     piv = PIVRunner(video, settings)
 
-    u, v, flags = piv.velocity_field(0)
+    x, y, u, v, flags = piv.velocity_field(0)
 
     piv.plot(u, v, show=True, flags=flags)

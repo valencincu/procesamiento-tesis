@@ -1,6 +1,6 @@
 import numpy as np
-from scipy.fft import fft2, fftshift, fftfreq, ifft2
-from skimage.measure import regionprops, label
+from scipy.fft import fft2, fftfreq, fftshift, ifft2
+from skimage.measure import label, regionprops
 
 
 def wavenumber_axis(size, calibration_factor=1, shifted=True):
@@ -34,13 +34,13 @@ def pixels_to_wavenumbers(image_shape, locations, calibration_factor=1):
     return wavenumbers
 
 
-def integrate_gradient(gradient_x, gradient_y, calibration_factor=1): 
-    ky, kx = wavenumber_meshgrid(gradient_x.shape, calibration_factor, shifted=False)  
-    
+def integrate_gradient(gradient_x, gradient_y, calibration_factor=1):
+    ky, kx = wavenumber_meshgrid(gradient_x.shape, calibration_factor, shifted=False)
+
     filter_nyquist_artifacts(kx, ky, gradient_x.shape)
 
     k2 = kx ** 2 + ky ** 2
-    k2 = np.where(k2 == 0.0, 1.0, k2) 
+    k2 = np.where(k2 == 0.0, 1.0, k2)
 
     gradient_x_hat, gradient_y_hat = fft2(gradient_x), fft2(gradient_y)
     integrated_hat = (-1.0j * kx * gradient_x_hat + -1.0j * ky * gradient_y_hat) / k2
@@ -65,7 +65,7 @@ def find_peak_locations(image, threshold, num_peaks):
 
     blobs_with_max_intensity_and_coord = [blob_max_pixel_intensity(blob) for blob in blob_data]
     sorted_blobs = sorted(blobs_with_max_intensity_and_coord, key=lambda x: x[0], reverse=True)
-    return [blob[1] for blob in sorted_blobs[:num_peaks]] 
+    return [blob[1] for blob in sorted_blobs[:num_peaks]]
 
 
 def find_carrier_peaks(image):

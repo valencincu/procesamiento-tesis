@@ -1,10 +1,11 @@
+import warnings
+
 import matplotlib.pyplot as plt
 import numpy as np
-import warnings
-from scipy.fft import fft2, ifft2, ifftshift, fftshift
+from scipy.fft import fft2, fftshift, ifft2, ifftshift
 from skimage.draw import disk
 
-import pyfcd.fourier_space as fourier_space
+from pyfcd import fourier_space
 
 
 class Carrier:
@@ -57,4 +58,3 @@ class Carrier:
             fill=fill,
         )
         ax.add_patch(circle)
-

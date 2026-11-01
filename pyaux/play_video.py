@@ -1,15 +1,17 @@
+from pathlib import Path
+from tkinter import Tk
+from tkinter.filedialog import askdirectory
+
+import cv2
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
-import cv2
-from tkinter import Tk
-from tkinter.filedialog import askdirectory
 from matplotlib import use as matplotlib_backend
-from pathlib import Path
+
 matplotlib_backend("TkAgg")
 
 # OPEN FILE
-Tk().withdraw() 
+Tk().withdraw()
 directory = Path(askdirectory(title="Select data directory", initialdir="analysis"))
 print(f"Analyzing: {directory}")
 f = h5py.File(directory / "height_maps.hdf5", "r")
@@ -41,7 +43,7 @@ for i, frame in enumerate(height_maps):
     title.set_text(f"{ts[i]*1000} ms")
     plt.savefig(f"gif/{i:04}.png",dpi=100)
     fig.canvas.draw()
-    fig.canvas.flush_events()  
+    fig.canvas.flush_events()
 
     out.write((255*normalize_image(frame)).astype(np.uint8))
 
