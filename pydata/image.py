@@ -102,10 +102,8 @@ class Image(np.ndarray):
 
 
     def contrast_stretch(self, lower_limit = 2, upper_limit = 98):
-        if lower_limit < 0:
-            lower_limit = 0
-        if upper_limit > 100:
-            upper_limit = 100
+        lower_limit = max(lower_limit, 0)
+        upper_limit = min(upper_limit, 100)
 
         lower = np.percentile(self, lower_limit)
         upper = np.percentile(self, upper_limit)

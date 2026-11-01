@@ -78,7 +78,7 @@ class Structure:
 def _get_circle(edges, radii=None):
         radii = radii if radii is not None else np.arange(100, 500, 10)
         hough_res = hough_circle(edges, radii)
-        accums, cx, cy, radii = hough_circle_peaks(hough_res, radii, total_num_peaks=1)
+        _, cx, cy, radii = hough_circle_peaks(hough_res, radii, total_num_peaks=1)
         center = (int(cx[0]), int(cy[0]))
         return center, radii[0]
 
