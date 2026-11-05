@@ -1,13 +1,11 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from scipy.interpolate import RectBivariateSpline
+from openpiv import validation
 from scipy.ndimage import map_coordinates, uniform_filter
 
-from pypiv.visualization import compare_frames, piv_plot
-from pypiv.settings import SimplePIVSettings, WindefPIVSettings
-
-from openpiv import validation
 from pypiv.algorithms import simple_piv, windef_piv
+from pypiv.settings import SimplePIVSettings, WindefPIVSettings
+from pypiv.visualization import compare_frames, piv_plot
+
 
 def normalized(image, scale=1, offset=0, astype=np.float32):
     img = image.astype(astype)

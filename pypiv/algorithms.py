@@ -56,6 +56,10 @@ def _correlate(frame_a, frame_b, settings: CommonPIVSettings, window_size, overl
         use_vectorized=settings.use_vectorized,
         backend=getattr(settings, "backend", "auto"),
     )
+
+    u = np.nan_to_num(u, nan=0.0)
+    v = np.nan_to_num(v, nan=0.0)
+
     return u, v, s2n
 
 
@@ -174,7 +178,7 @@ def _windef_iteration(
 # PIV ALGORITHMS
 # ------------------------------------------------------------------------------
 
-def simple_piv(frame_a: np.ndarray, frame_b: np.ndarray, settings: SimplePIVSettings, replace_flagged: bool = True, calibration_factor=1.0, dt=1.0):
+def simple_piv(frame_a: np.ndarray, frame_b: np.ndarray, settings: SimplePIVSettings, replace_flagged: bool = True, calibration_factor: float = 1.0, dt: float = 1.0):
 
     x, y = generate_coordinates(frame_a.shape, settings.search_area_size, settings.overlap)
 
@@ -186,7 +190,7 @@ def simple_piv(frame_a: np.ndarray, frame_b: np.ndarray, settings: SimplePIVSett
     return x * calibration_factor, y * calibration_factor, u * calibration_factor / dt, v * calibration_factor / dt, flags
 
 
-def windef_piv(frame_a: np.ndarray, frame_b: np.ndarray, settings: WindefPIVSettings, replace_flagged: bool = True, calibration_factor=1.0, dt=1.0):
+def windef_piv(frame_a: np.ndarray, frame_b: np.ndarray, settings: WindefPIVSettings, replace_flagged: bool = True, calibration_factor: float = 1.0, dt: float = 1.0):
 
     x, y = generate_coordinates(frame_a.shape, settings.window_sizes[0], settings.overlaps[0])
     u, v, s2n = _correlate(frame_a, frame_b, settings, settings.window_sizes[0], settings.overlaps[0])

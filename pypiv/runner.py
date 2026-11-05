@@ -54,8 +54,8 @@ class PIVRunner:
         return x, y, u, v, flags
 
 
-    def plot(self, u, v, **kwargs):
-        return piv_plot(self.x, self.y, u, v, **kwargs)
+    def plot(self, u, v, flags=None, **kwargs):
+        return piv_plot(self.x, self.y, u, v, flags=flags, **kwargs)
 
 
     def compare_frames(self, frame_index, ax=None, show=True):
@@ -75,13 +75,16 @@ class PIVRunner:
         length = len(self.video)
         shape  = self.x.shape
         with h5py.File(str(save_at) + ".hdf5", "w") as f:
-            f.create_dataset("calibration_factor [m]", data=self.calibration_factor, dtype=np.float64)
-            f.create_dataset("x [m]", data=self.x, dtype=np.float64)
-            f.create_dataset("y [m]", data=self.y, dtype=np.float64)
-            us = f.create_dataset("u [m per s]", shape=(0, *shape), maxshape=(length, *shape), chunks=(1, *shape), dtype=np.float64)
-            vs = f.create_dataset("v [m per s]", shape=(0, *shape), maxshape=(length, *shape), chunks=(1, *shape), dtype=np.float64)
+            f.create_dataset("calibration_factor", data=self.calibration_factor, dtype=np.float64)
+            f.create_dataset("x", data=self.x[0,:], dtype=np.float64)
+            f.create_dataset("y", data=self.y[:,0], dtype=np.float64)
+            us = f.create_dataset("u", shape=(0, *shape), maxshape=(length, *shape), chunks=(1, *shape), dtype=np.float64)
+            vs = f.create_dataset("v", shape=(0, *shape), maxshape=(length, *shape), chunks=(1, *shape), dtype=np.float64)
             fs = f.create_dataset("flags", shape=(0, *shape), maxshape=(length, *shape), chunks=(1, *shape), dtype=bool)
-            ts = f.create_dataset("t [s]", shape=(0,), maxshape=(length,), dtype=np.float64)
+            ts = f.create_dataset("t", shape=(0,), maxshape=(length,), dtype=np.float64)
+
+            f.attrs["spatial_units"] = "m"
+            f.attrs["time_units"] = "t"
 
             i = 0
             for t, u, v, flags in gen:
@@ -108,7 +111,7 @@ class PIVRunner:
             ax.clear()
 
             ax.set_title(f"{t} s")
-            self.plot(u, v, ax=ax)
+            self.plot(u, v, flags=flags, ax=ax)
 
             fig.canvas.draw()
             fig.canvas.flush_events()

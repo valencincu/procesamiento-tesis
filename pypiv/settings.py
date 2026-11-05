@@ -40,7 +40,7 @@ class CommonPIVSettings:
     # ------------------------------------------------------------------------------
     filter_method: str = "localmean"  #  'localmean', 'disk' or 'distance'.
     max_filter_iteration: int = 5
-    filter_kernel_size: int = 2
+    filter_kernel_size: int = 3
 
 
 @dataclass(init=True, repr=True, frozen=True, kw_only=True)
@@ -48,13 +48,13 @@ class SimplePIVSettings(CommonPIVSettings):
     # ------------------------------------------------------------------------------
     # PIV GRID
     # ------------------------------------------------------------------------------
-    search_area_size: int | None = None  # None: same as window_size
+    search_area_size: int = 0
     window_size: int = 32
     overlap: int = 16
 
 
     def __post_init__(self):
-        object.__setattr__(self, 'search_area_size',  self.window_size if self.search_area_size is None else self.search_area_size)
+        object.__setattr__(self, 'search_area_size',  self.window_size if self.search_area_size == 0 else self.search_area_size)
 
         if self.window_size <= 0 or self.overlap < 0:
             raise ValueError("window_size must be > 0 and overlap >= 0.")

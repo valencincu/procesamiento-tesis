@@ -5,8 +5,10 @@ from shutil import copyfile
 def create_output_directory(video, import_dir, export_dir):
     job_id = input("Enter job identifier: ", )
 
+    exist_ok = (job_id.lower() == "test")
+
     save_dir = export_dir / f"{import_dir.name} - {job_id}"
-    save_dir.mkdir(parents=True, exist_ok=False)
+    save_dir.mkdir(parents=True, exist_ok=exist_ok)
 
     metadata_path = next(video.directory_path.glob("*.cih"))
     copyfile(metadata_path, save_dir / "metadata.cih")

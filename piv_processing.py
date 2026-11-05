@@ -63,18 +63,14 @@ def preprocess_func(image):
     return processed_image
 
 video.preprocess = preprocess_func
-video[0].show()
 
 # --------------------------------------------------------------------------
 # VELOCITY FIELD FILTER FUNCTION
 # --------------------------------------------------------------------------
 
 def validation_func(u, v, s2n):
-
     flags = validation.sig2noise_val(s2n, threshold=PIV_SIG2NOISE_THRESHOLD)
-
     flags |= validation.local_norm_median_val(u, v, FILTER_SCALE, FILTER_NEIGHBORHOOD)
-
     return flags
 
 # --------------------------------------------------------------------------

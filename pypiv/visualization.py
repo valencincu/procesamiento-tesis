@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import scienceplots
 
-plt.style.use("science")
+plt.style.use("science.mplstyle")
 
 def velocity_histogram(u: np.ndarray, v: np.ndarray, ax=None, show=False, **histogram2d_kwargs):
     hist, x_edges, y_edges = np.histogram2d(u.ravel(), v.ravel(), **histogram2d_kwargs)
@@ -30,6 +29,7 @@ def piv_plot(x, y, u, v, flags=None, background=None, ax=None, scale=None, show=
         ax.pcolormesh(background, cmap="gray", rasterized=True)
 
     ax.quiver(x, y, u * (1 - mask), v * (1 - mask), scale=scale)
+    ax.quiver(x, y, u * mask, v * mask, scale=scale, color="red")
     ax.set_aspect('equal')
 
     if show: plt.show()
