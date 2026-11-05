@@ -39,7 +39,7 @@ class CommonPIVSettings:
     # OUTLIER REPLACEMENT
     # ------------------------------------------------------------------------------
     filter_method: str = "localmean"  #  'localmean', 'disk' or 'distance'.
-    max_filter_iteration: int = 5
+    max_filter_iteration: int = 10
     filter_kernel_size: int = 3
 
 

@@ -15,7 +15,7 @@ matplotlib_backend("TkAgg")
 # --------------------------------------------------------------------------
 
 class PIVRunner:
-    def __init__(self, video, settings, fps=None, interval=1, calibration_factor=1.0):
+    def __init__(self, video, settings, fps=None, interval=1, calibration_factor=1.0, replace_flagged=True):
         self.video = video
         self.image_shape = self.video[0].shape
         self.settings = settings
@@ -23,6 +23,7 @@ class PIVRunner:
         self.interval = interval
         self.dt = self.interval / self.fps
         self.calibration_factor = calibration_factor
+        self.replace_flagged = replace_flagged
 
         if isinstance(settings, SimplePIVSettings):
             self.process = simple_piv
@@ -49,7 +50,7 @@ class PIVRunner:
         current_frame = self.video[frame_index]
         next_frame = self.video[frame_index + self.interval]
 
-        x, y, u, v, flags = self.process(current_frame, next_frame, self.settings, calibration_factor=self.calibration_factor, dt=self.dt)
+        x, y, u, v, flags = self.process(current_frame, next_frame, self.settings, replace_flagged=self.replace_flagged, calibration_factor=self.calibration_factor, dt=self.dt)
 
         return x, y, u, v, flags
 
@@ -130,11 +131,8 @@ if __name__ == "__main__":
     video = [frame_a, frame_b]
 
     def validation_func(u, v, s2n):
-
         flags = validation.sig2noise_val(s2n, threshold=1.0)
-
         flags |= validation.local_norm_median_val(u, v, 0.1, 2)
-
         return flags
 
     settings = WindefPIVSettings(

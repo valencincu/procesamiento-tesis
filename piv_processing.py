@@ -1,3 +1,4 @@
+import warnings
 from datetime import datetime
 from pathlib import Path
 
@@ -25,16 +26,18 @@ plt.style.use('science')
 DEFAULT_STEP = 4
 BACKGROUND_AVERAGE_STEP = 10
 
-CONTRAST_STRETCH_LOWER = 50
-CONTRAST_STRETCH_UPPER = 100
+CONTRAST_STRETCH_LOWER = 60
+CONTRAST_STRETCH_UPPER = 99
 
 PIV_INTERVAL = 6
-PIV_WINDOW_SIZES = (64, 32, 16)
-PIV_OVERLAPS = (32, 16, 8)
-PIV_SIG2NOISE_THRESHOLD = 2.0
+PIV_WINDOW_SIZES = (64, 32)
+PIV_OVERLAPS = (32, 16)
+PIV_SIG2NOISE_THRESHOLD = 1.2
 
 FILTER_SCALE = 0.1
 FILTER_NEIGHBORHOOD = 2
+
+SMOOTHN: bool = True
 
 CALIBRATION_FACTOR = 1/3927.3
 
@@ -70,7 +73,11 @@ video.preprocess = preprocess_func
 
 def validation_func(u, v, s2n):
     flags = validation.sig2noise_val(s2n, threshold=PIV_SIG2NOISE_THRESHOLD)
-    flags |= validation.local_norm_median_val(u, v, FILTER_SCALE, FILTER_NEIGHBORHOOD)
+    u = np.where(flags, np.nan, u)
+    v = np.where(flags, np.nan, v)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        flags |= validation.local_norm_median_val(u, v, FILTER_SCALE, FILTER_NEIGHBORHOOD)
     return flags
 
 # --------------------------------------------------------------------------
@@ -78,10 +85,10 @@ def validation_func(u, v, s2n):
 # --------------------------------------------------------------------------
 
 settings = WindefPIVSettings(
-    window_sizes=(64, 32, 16),
-    overlaps=(32, 16, 8),
+    window_sizes=PIV_WINDOW_SIZES,
+    overlaps=PIV_OVERLAPS,
     validation_function=validation_func,
-    use_smoothn=True,
+    use_smoothn=SMOOTHN,
 )
 
 piv = PIVRunner(
@@ -101,7 +108,7 @@ date_tag = datetime.now().strftime("%Y_%m_%d")
 output_root = script_path.parent / "postprocessing" / "data" / "piv" / date_tag
 save_dir, notes_path = create_output_directory(video, video.directory_path, output_root)
 
-path_dictionary = {
+path_dictionary: dict[str, str] = {
     "video_path": str(video.directory_path.resolve()),
     "script_path": str(Path(__file__).resolve()),
 }
