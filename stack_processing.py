@@ -1,3 +1,6 @@
+# %% LIBRARIES
+# --------------------------------------------------------------------------
+
 from datetime import datetime
 from pathlib import Path
 
@@ -6,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import use as matplotlib_backend
 
-from pyaux.output_config import create_output_directory
+from pyaux.file_management import create_output_directory
 from pydata.roi import ROI
 from pydata.video import Video
 from pypiv.algorithms import generate_background
@@ -14,8 +17,10 @@ from pypiv.algorithms import generate_background
 matplotlib_backend("TkAgg")
 
 # --------------------------------------------------------------------------
-# CONSTANTS
+# %% CONSTANTS
 # --------------------------------------------------------------------------
+
+INITIAL_DIR ="/media/valencincu"
 
 BACKGROUND_AVERAGE_STEP = 10
 
@@ -26,14 +31,14 @@ START_FRAME = 2500
 END_FRAME = 3000
 
 # --------------------------------------------------------------------------
-# SELECT VIDEO
+# %% SELECT VIDEO
 # --------------------------------------------------------------------------
 
 video = Video()
 data_directory = video.directory_path
 
 # --------------------------------------------------------------------------
-# EXPORT PATH SETUP
+# %% EXPORT PATH SETUP
 # --------------------------------------------------------------------------
 
 script_path = Path(__file__).resolve()
@@ -42,7 +47,7 @@ output_root = script_path.parent / "postprocessing" / "data" / "stacking" / date
 export_dir, _ = create_output_directory(video, video.directory_path, output_root)
 
 # --------------------------------------------------------------------------
-# PREPROCESS
+# %% PREPROCESS
 # --------------------------------------------------------------------------
 
 first_frame = video[0]
@@ -63,7 +68,7 @@ def preprocess_func(image):
 video.preprocess = preprocess_func
 
 # --------------------------------------------------------------------------
-# TRACE TRAJECTORIES
+# %% TRACE TRAJECTORIES
 # --------------------------------------------------------------------------
 
 noise_image = video[0].copy()
@@ -82,7 +87,7 @@ stacked_image -= noise_image
 stacked_image = stacked_image.normalized()
 
 # --------------------------------------------------------------------------
-# PLOT TRAJECTORIES
+# %% PLOT TRAJECTORIES
 # --------------------------------------------------------------------------
 
 plt.figure(figsize=(20, 20))
@@ -91,7 +96,7 @@ plt.axis("off")
 plt.show()
 
 # --------------------------------------------------------------------------
-# SAVE
+# %% SAVE
 # --------------------------------------------------------------------------
 
 export_file_name = (
@@ -103,3 +108,5 @@ cv2.imwrite(
     export_dir / export_file_name,
     cv2.bitwise_not((stacked_image * 255).astype(np.uint8)),
 )
+
+# --------------------------------------------------------------------------

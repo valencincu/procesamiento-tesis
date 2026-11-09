@@ -76,7 +76,6 @@ class PIVRunner:
         length = len(self.video)
         shape  = self.x.shape
         with h5py.File(str(save_at) + ".hdf5", "w") as f:
-            f.create_dataset("calibration_factor", data=self.calibration_factor, dtype=np.float64)
             f.create_dataset("x", data=self.x[0,:], dtype=np.float64)
             f.create_dataset("y", data=self.y[:,0], dtype=np.float64)
             us = f.create_dataset("u", shape=(0, *shape), maxshape=(length, *shape), chunks=(1, *shape), dtype=np.float64)
@@ -86,6 +85,7 @@ class PIVRunner:
 
             f.attrs["spatial_units"] = "m"
             f.attrs["time_units"] = "t"
+            f.attrs["calibration_factor"] = self.calibration_factor
 
             i = 0
             for t, u, v, flags in gen:

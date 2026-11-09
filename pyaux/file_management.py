@@ -1,5 +1,14 @@
 from pathlib import Path
 from shutil import copyfile
+from tkinter import Tk
+from tkinter.filedialog import askdirectory
+
+
+def select_directory(initialdir=None):
+    Tk().withdraw()
+    directory = Path(askdirectory(title="Select directory", initialdir=initialdir))
+    print(f"Analyzing: {directory}")
+    return directory
 
 
 def create_output_directory(video, import_dir, export_dir):

@@ -1,13 +1,19 @@
+# %% LIBRARIES
+# --------------------------------------------------------------------------
+
 from datetime import datetime
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scienceplots
 from matplotlib import use as matplotlib_backend
 from tqdm import tqdm
 
-from pyaux.output_config import create_output_directory, write_analysis_notes
+from pyaux.file_management import (
+    create_output_directory,
+    select_directory,
+    write_analysis_notes,
+)
 from pydata.image import *
 from pydata.roi import ROI
 from pydata.video import Video
@@ -15,11 +21,13 @@ from pyfcd.fcd import FCD, find_reference_image
 from pyfcd.layer import Layer, refractive_indexes
 
 matplotlib_backend("TkAgg")
-plt.style.use("science")
+plt.style.use("science.mplstyle")
 
 # --------------------------------------------------------------------------
-# CONSTANTS
+# %% CONSTANTS
 # --------------------------------------------------------------------------
+
+INITIAL_DIR ="/media/valencincu"
 
 SQUARE_SIZE = 2e-3
 PATTERN_CAMERA_DISTANCE = 80e-2
@@ -29,10 +37,10 @@ WATER_LAYER_THICKNESS = 7.9e-2
 ANALYSIS_STEP = 4
 
 # --------------------------------------------------------------------------
-# SELECT VIDEO AND REFERENCE
+# %% SELECT VIDEO AND REFERENCE
 # --------------------------------------------------------------------------
 
-video = Video()
+video = Video(select_directory(initialdir=Path(INITIAL_DIR).resolve()))
 reference = Image(image_path=find_reference_image(video.directory_path.parent))
 
 roi = ROI(video[0], select=True).square()
@@ -41,7 +49,7 @@ reference = reference.cropped(roi=roi)
 video.preprocess = lambda frame: frame.cropped(roi=roi)
 
 # --------------------------------------------------------------------------
-# PHYSICAL CONFIG
+# %% PHYSICAL CONFIG
 # --------------------------------------------------------------------------
 
 H  = PATTERN_CAMERA_DISTANCE
@@ -53,24 +61,24 @@ layers = [
 ]
 
 hp =  np.sum([
-    layer.effective_height(refractive_indexes["Water"]) 
+    layer.effective_height(refractive_indexes["Water"])
     for layer in layers
 ])
 
-parallax_correction = (1 - hp / H) 
+parallax_correction = (1 - hp / H)
 effective_square_size = SQUARE_SIZE * parallax_correction
 
 alpha = 1 - refractive_indexes["Air"] / refractive_indexes["Water"]
 effective_height =  (1 / (alpha*hp) - 1 / H)**(-1)
 
 # --------------------------------------------------------------------------
-# FCD CONFIGURATION
+# %% FCD CONFIGURATION
 # --------------------------------------------------------------------------
 
 fcd = FCD(reference, square_size=effective_square_size, effective_height=effective_height)
 
 # --------------------------------------------------------------------------
-# SAVE CONFIG
+# %% SAVE CONFIG
 # --------------------------------------------------------------------------
 
 script_path = Path(__file__).resolve()
@@ -84,8 +92,8 @@ path_dictionary = {
 }
 
 parameter_dictionary = {
-    "ROI": roi, 
-    "effective_height": effective_height, 
+    "ROI": roi,
+    "effective_height": effective_height,
     "calibration_factor": fcd.calibration_factor,
     "parallax_correction": parallax_correction,
     "original_fps": video.fps,
@@ -96,7 +104,7 @@ save_dir, notes_path = create_output_directory(video, video.directory_path.paren
 write_analysis_notes(notes_path, path_dictionary, parameter_dictionary)
 
 # --------------------------------------------------------------------------
-# CHECK: Plot FFT with carriers
+# %% CHECK: Plot FFT with carriers
 # --------------------------------------------------------------------------
 
 fig,_ = fcd.plot_fft(video[0])
@@ -104,14 +112,14 @@ fig.savefig(save_dir / "fft.pdf", dpi=200)
 plt.show()
 
 # --------------------------------------------------------------------------
-# RUN
+# %% RUN
 # --------------------------------------------------------------------------
 
 results = fcd.analyze_series(
-    video, 
-    video.fps, 
-    step=ANALYSIS_STEP, 
-    animate=True, 
+    video,
+    video.fps,
+    step=ANALYSIS_STEP,
+    animate=True,
     save_at=save_dir/"height_maps"
 )
 
@@ -121,3 +129,5 @@ try:
 finally:
     results.close()
     plt.ioff()
+
+# --------------------------------------------------------------------------

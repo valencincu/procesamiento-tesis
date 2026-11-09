@@ -223,12 +223,15 @@ class FCD:
         shape = self.reference_image.shape
         with h5py.File(str(save_at) + ".hdf5", "w") as f:
             height_maps = f.create_dataset(
-                "height_maps [m]", (0, *shape), maxshape=(None, *shape), chunks=(1, *shape)
+                "height_maps", (0, *shape), maxshape=(None, *shape), chunks=(1, *shape), dtype=np.float64
             )
-            ts = f.create_dataset("t [s]", shape=(0,), maxshape=(None,), dtype=np.float64)
-            f.create_dataset("x [m]", data=self.x)
-            f.create_dataset("y [m]", data=self.y)
-            f.create_dataset("calibration_factor [m]", data=self.calibration_factor, dtype=np.float64)
+            ts = f.create_dataset("t", shape=(0,), maxshape=(None,), dtype=np.float64)
+            f.create_dataset("x", data=self.x[0,:])
+            f.create_dataset("y", data=self.y[:,0])
+
+            f.attrs["spatial_units"] = "m"
+            f.attrs["time_units"] = "t"
+            f.attrs["calibration_factor"] = self.calibration_factor
 
             i = 0
             for t, i_def, height_map in gen:

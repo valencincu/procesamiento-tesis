@@ -1,15 +1,21 @@
+# %% LIBRARIES
+# --------------------------------------------------------------------------
+
 import warnings
 from datetime import datetime
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scienceplots
 from matplotlib import use as matplotlib_backend
 from openpiv import validation
 from tqdm import tqdm
 
-from pyaux.output_config import create_output_directory, write_analysis_notes
+from pyaux.file_management import (
+    create_output_directory,
+    select_directory,
+    write_analysis_notes,
+)
 from pydata.roi import ROI
 from pydata.video import Video
 from pypiv.algorithms import generate_background
@@ -17,11 +23,12 @@ from pypiv.runner import PIVRunner
 from pypiv.settings import WindefPIVSettings
 
 matplotlib_backend("TkAgg")
-plt.style.use('science')
+plt.style.use('science.mplstyle')
 
 # --------------------------------------------------------------------------
-# CONSTANTS
+# %% CONSTANTS
 # --------------------------------------------------------------------------
+INITIAL_DIR ="/media/valencincu"
 
 DEFAULT_STEP = 4
 BACKGROUND_AVERAGE_STEP = 10
@@ -42,13 +49,13 @@ SMOOTHN: bool = True
 CALIBRATION_FACTOR = 1/3927.3
 
 # --------------------------------------------------------------------------
-# SELECT VIDEO
+# %% SELECT VIDEO
 # --------------------------------------------------------------------------
 
-video = Video()
+video = Video(select_directory(initialdir=Path(INITIAL_DIR).resolve()))
 
 # --------------------------------------------------------------------------
-# PREPROCESS
+# %% PREPROCESS
 # --------------------------------------------------------------------------
 
 first_frame = video[0]
@@ -68,7 +75,7 @@ def preprocess_func(image):
 video.preprocess = preprocess_func
 
 # --------------------------------------------------------------------------
-# VELOCITY FIELD FILTER FUNCTION
+# %% VELOCITY FIELD FILTER FUNCTION
 # --------------------------------------------------------------------------
 
 def validation_func(u, v, s2n):
@@ -81,7 +88,7 @@ def validation_func(u, v, s2n):
     return flags
 
 # --------------------------------------------------------------------------
-# PIV CONFIGURATION
+# %% PIV CONFIGURATION
 # --------------------------------------------------------------------------
 
 settings = WindefPIVSettings(
@@ -100,7 +107,7 @@ piv = PIVRunner(
 )
 
 # --------------------------------------------------------------------------
-# SAVE CONFIG
+# %% SAVE CONFIG
 # --------------------------------------------------------------------------
 
 script_path  = Path(__file__).resolve()
@@ -115,7 +122,7 @@ path_dictionary: dict[str, str] = {
 write_analysis_notes(notes_path, path_dictionary, {'roi': roi, 'original_fps': video.fps, 'step': DEFAULT_STEP}, extra=settings.__repr__())
 
 # --------------------------------------------------------------------------
-# CHECK: PLOT ORIGINAL AND PREPROCESSED FIRST FRAME
+# %% CHECK: PLOT ORIGINAL AND PREPROCESSED FIRST FRAME
 # --------------------------------------------------------------------------
 
 fig, axs = plt.subplots(1, 2)
@@ -129,7 +136,7 @@ fig.savefig(save_dir/"preprocessing.pdf", dpi=200)
 plt.show()
 
 # --------------------------------------------------------------------------
-# CHECK: COMPARE CONSECUTIVE FRAMES
+# %% CHECK: COMPARE CONSECUTIVE FRAMES
 # --------------------------------------------------------------------------
 
 ax = piv.compare_frames(0, show=False)
@@ -137,7 +144,7 @@ plt.savefig(save_dir/"frame_comparison.pdf", dpi=200)
 plt.show()
 
 # --------------------------------------------------------------------------
-# RUN PIV
+# %% RUN
 # --------------------------------------------------------------------------
 
 results = piv.run(step=DEFAULT_STEP, animate=True, save_at=save_dir/"piv")
@@ -147,3 +154,5 @@ try:
 finally:
     results.close()
     plt.ioff()
+
+# --------------------------------------------------------------------------
