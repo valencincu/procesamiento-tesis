@@ -27,7 +27,6 @@ ALLOWED_FORMATS = ("jpg", "png", "tiff", "bmp", "npy", "tif")
 
 def find_reference_image(import_dir):
     filename_list = chain(*[list(import_dir.glob(f"*.{extension}")) for extension in ALLOWED_FORMATS])
-    print(filename_list)
     for filename in filename_list:
         if "ref" in str(filename).lower():
             return filename
@@ -130,7 +129,7 @@ class FCD:
 
 
     def plot_fft(self, displaced_image, show=True):
-        fig, axs = plt.subplots(1, 2)
+        fig, axs = plt.subplots(1, 2, figsize=(6.30, 3.14))
 
         x_ticks = np.linspace(0, self.reference_image.shape[1] - 1, 5, dtype=int)
         y_ticks = np.linspace(0, self.reference_image.shape[0] - 1, 5, dtype=int)

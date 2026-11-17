@@ -1,11 +1,9 @@
-import os
 from pathlib import Path
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scienceplots
 from matplotlib import use as matplotlib_backend
 
 from pydata.image import Image
@@ -14,7 +12,7 @@ from pyfcd.fcd import FCD
 from pyfcd.layer import Layer, refractive_indexes
 
 matplotlib_backend("TkAgg")
-plt.style.use("science")
+plt.style.use("science.mplstyle")
 
 # --------------------------------------------------------------------------
 # CONSTANTS
@@ -31,7 +29,7 @@ ANALYSIS_STEP = 4
 # SELECT DISPLACED AND REFERENCE IMAGES
 # --------------------------------------------------------------------------
 
-Tk().withdraw() 
+Tk().withdraw()
 displaced_image_path = Path(askopenfilename(title="Select displaced image"))
 reference_image_path = Path(askopenfilename(title="Select reference image"))
 displaced_image = Image(image_path=displaced_image_path)
@@ -55,11 +53,11 @@ layers = [
 ]
 
 hp =  np.sum([
-    layer.effective_height(refractive_indexes["Water"]) 
+    layer.effective_height(refractive_indexes["Water"])
     for layer in layers
 ])
 
-parallax_correction = (1 - hp / H) 
+parallax_correction = (1 - hp / H)
 effective_square_size = SQUARE_SIZE * parallax_correction
 
 alpha = 1 - refractive_indexes["Air"] / refractive_indexes["Water"]
@@ -71,7 +69,7 @@ effective_height =  (1 / (alpha*hp) - 1 / H)**(-1)
 
 fcd = FCD(
     reference_image.cropped(roi=roi),
-    square_size=effective_square_size, 
+    square_size=effective_square_size,
     effective_height=effective_height
 )
 
@@ -99,5 +97,3 @@ plt.colorbar(im, label="Altura [mm]", ax=axs[1], orientation="horizontal")
 
 plt.savefig("postprocessing/data/" + "fcd.pdf", dpi=200)
 plt.show()
-
-

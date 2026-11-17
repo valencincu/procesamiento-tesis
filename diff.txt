@@ -1,0 +1,101 @@
+diff --git a/fcd_one_image.py b/fcd_one_image.py
+index fd88b21..2bf3f07 100644
+--- a/fcd_one_image.py
++++ b/fcd_one_image.py
+@@ -1,11 +1,9 @@
+-import os
+ from pathlib import Path
+ from tkinter import Tk
+ from tkinter.filedialog import askopenfilename
+ 
+ import matplotlib.pyplot as plt
+ import numpy as np
+-import scienceplots
+ from matplotlib import use as matplotlib_backend
+ 
+ from pydata.image import Image
+@@ -14,7 +12,7 @@ from pyfcd.fcd import FCD
+ from pyfcd.layer import Layer, refractive_indexes
+ 
+ matplotlib_backend("TkAgg")
+-plt.style.use("science")
++plt.style.use("science.mplstyle")
+ 
+ # --------------------------------------------------------------------------
+ # CONSTANTS
+@@ -31,7 +29,7 @@ ANALYSIS_STEP = 4
+ # SELECT DISPLACED AND REFERENCE IMAGES
+ # --------------------------------------------------------------------------
+ 
+-Tk().withdraw() 
++Tk().withdraw()
+ displaced_image_path = Path(askopenfilename(title="Select displaced image"))
+ reference_image_path = Path(askopenfilename(title="Select reference image"))
+ displaced_image = Image(image_path=displaced_image_path)
+@@ -55,11 +53,11 @@ layers = [
+ ]
+ 
+ hp =  np.sum([
+-    layer.effective_height(refractive_indexes["Water"]) 
++    layer.effective_height(refractive_indexes["Water"])
+     for layer in layers
+ ])
+ 
+-parallax_correction = (1 - hp / H) 
++parallax_correction = (1 - hp / H)
+ effective_square_size = SQUARE_SIZE * parallax_correction
+ 
+ alpha = 1 - refractive_indexes["Air"] / refractive_indexes["Water"]
+@@ -71,7 +69,7 @@ effective_height =  (1 / (alpha*hp) - 1 / H)**(-1)
+ 
+ fcd = FCD(
+     reference_image.cropped(roi=roi),
+-    square_size=effective_square_size, 
++    square_size=effective_square_size,
+     effective_height=effective_height
+ )
+ 
+@@ -99,5 +97,3 @@ plt.colorbar(im, label="Altura [mm]", ax=axs[1], orientation="horizontal")
+ 
+ plt.savefig("postprocessing/data/" + "fcd.pdf", dpi=200)
+ plt.show()
+-
+-
+diff --git a/piv_processing.py b/piv_processing.py
+index 9706fb3..d603353 100644
+--- a/piv_processing.py
++++ b/piv_processing.py
+@@ -36,9 +36,9 @@ BACKGROUND_AVERAGE_STEP = 10
+ CONTRAST_STRETCH_LOWER = 60
+ CONTRAST_STRETCH_UPPER = 99
+ 
+-PIV_INTERVAL = 6
+-PIV_WINDOW_SIZES = (64, 32)
+-PIV_OVERLAPS = (32, 16)
++PIV_INTERVAL = 3
++PIV_WINDOW_SIZES = (64, 32, 16)
++PIV_OVERLAPS = (32, 16, 8)
+ PIV_SIG2NOISE_THRESHOLD = 1.2
+ 
+ FILTER_SCALE = 0.1
+diff --git a/pyfcd/fcd.py b/pyfcd/fcd.py
+index c0fb40e..9e3b2e7 100644
+--- a/pyfcd/fcd.py
++++ b/pyfcd/fcd.py
+@@ -27,7 +27,6 @@ ALLOWED_FORMATS = ("jpg", "png", "tiff", "bmp", "npy", "tif")
+ 
+ def find_reference_image(import_dir):
+     filename_list = chain(*[list(import_dir.glob(f"*.{extension}")) for extension in ALLOWED_FORMATS])
+-    print(filename_list)
+     for filename in filename_list:
+         if "ref" in str(filename).lower():
+             return filename
+@@ -130,7 +129,7 @@ class FCD:
+ 
+ 
+     def plot_fft(self, displaced_image, show=True):
+-        fig, axs = plt.subplots(1, 2)
++        fig, axs = plt.subplots(1, 2, figsize=(6.30, 3.14))
+ 
+         x_ticks = np.linspace(0, self.reference_image.shape[1] - 1, 5, dtype=int)
+         y_ticks = np.linspace(0, self.reference_image.shape[0] - 1, 5, dtype=int)
