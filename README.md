@@ -4,7 +4,7 @@ Python code to perform free surface profilometry with synthetic schlieren imagin
 
 ## pypiv
 
-Python code to perform PIV analysis. Mostly wraps around openpiv functions. `piv_processing.py` uses the code at pypiv to set up the preprocessing and piv processing for a video. `stack_processing.py` uses de preprocessing code at pypiv to preprocess images before stacking and blending them to show the lagrangian particle trajectories.
+Python code to perform PIV analysis. Mostly wraps around openpiv functions. `piv_processing.py` uses the code at pypiv to set up the preprocessing and piv processing for a video. `stack_processing.py` uses the preprocessing code at pypiv to preprocess images before stacking and blending them to show the lagrangian particle trajectories.
 
 ## pydata
 
